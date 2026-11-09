@@ -1,0 +1,39 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Carica il codice del repository
+      uses: actions/checkout@v4
+
+    - name: Configura Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Installa le dipendenze
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller aiohttp pypdfium2 dnspython
+
+    - name: Compila l'applicazione con PyInstaller
+      run: |
+        pyinstaller hgxyzn.spec
+
+    - name: Comprimi l'applicazione in un file ZIP
+      run: |
+        cd dist
+        zip -r "HGXYZN-OFFICE-macOS.zip" "HGXYZN OFFICE.app"
+
+    - name: Salva il pacchetto tra gli Artifacts di GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: HGXYZN-OFFICE-macOS
+        path: dist/HGXYZN-OFFICE-macOS.zip
